@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitfrost AI — Bridge the Gap Between Legacy ERP and Intelligent Enterprise</title>
+<meta name="description" content="Bitfrost AI connects legacy Infor A+ ERP systems to modern AI services through a secure REST/JSON gateway. No modifications to vendor source code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0b0f;
+    --bg-card: #12131a;
+    --bg-card-hover: #181a24;
+    --text-primary: #e8e6e1;
+    --text-secondary: #9a978f;
+    --text-dim: #5c5a54;
+    --accent-1: #7eb8da;
+    --accent-2: #c084fc;
+    --accent-3: #f0a050;
+    --accent-4: #5ee9b5;
+    --bridge-1: #ff6b6b;
+    --bridge-2: #ffa533;
+    --bridge-3: #ffd43b;
+    --bridge-4: #69db7c;
+    --bridge-5: #4dabf7;
+    --bridge-6: #9775fa;
+    --bridge-7: #e599f7;
+    --border: rgba(255,255,255,0.06);
+    --glow: rgba(126, 184, 218, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Raleway', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    line-height: 1.7;
+  }
+
+  /* ==================== NOISE OVERLAY ==================== */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ==================== AURORA BACKGROUND ==================== */
+  .aurora {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .aurora-beam {
+    position: absolute;
+    width: 200%;
+    height: 600px;
+    filter: blur(120px);
+    opacity: 0.08;
+    animation: aurora-drift 20s ease-in-out infinite alternate;
+  }
+  .aurora-beam:nth-child(1) {
+    background: linear-gradient(90deg, transparent, var(--bridge-5), var(--bridge-6), transparent);
+    top: -200px; left: -50%;
+    animation-duration: 25s;
+  }
+  .aurora-beam:nth-child(2) {
+    background: linear-gradient(90deg, transparent, var(--bridge-4), var(--bridge-5), transparent);
+    top: 0; left: -30%;
+    animation-duration: 18s;
+    animation-delay: -5s;
+  }
+  .aurora-beam:nth-child(3) {
+    background: linear-gradient(90deg, transparent, var(--bridge-6), var(--bridge-7), transparent);
+    top: -100px; left: -60%;
+    animation-duration: 22s;
+    animation-delay: -10s;
+  }
+  @keyframes aurora-drift {
+    from { transform: translateX(0) rotate(-3deg); }
+    to { transform: translateX(15%) rotate(3deg); }
+  }
+
+  /* ==================== NAVIGATION ==================== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(20px);
+    background: rgba(10, 11, 15, 0.7);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  nav.scrolled {
+    padding: 0.8rem 2rem;
+    background: rgba(10, 11, 15, 0.92);
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-cta {
+    padding: 0.5rem 1.3rem !important;
+    border: 1px solid var(--accent-1) !important;
+    border-radius: 4px;
+    color: var(--accent-1) !important;
+    transition: all 0.3s !important;
+  }
+  .nav-cta:hover {
+    background: var(--accent-1) !important;
+    color: var(--bg-deep) !important;
+  }
+
+  /* ==================== HERO ==================== */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    animation: fadeInDown 1s ease;
+  }
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--accent-4);
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(94, 233, 181, 0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(94, 233, 181, 0); }
+  }
+
+  .hero h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 0.3em;
+    animation: fadeInUp 1s ease 0.2s both;
+  }
+  .hero h1 .gradient-text {
+    background: linear-gradient(135deg, var(--bridge-5) 0%, var(--bridge-6) 30%, var(--bridge-7) 60%, var(--bridge-1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmer 8s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% center; }
+    50% { background-position: 100% center; }
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.35rem);
+    font-weight: 300;
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin-bottom: 3rem;
+    animation: fadeInUp 1s ease 0.4s both;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeInUp 1s ease 0.6s both;
+  }
+  .btn-primary {
+    padding: 0.85rem 2.2rem;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: var(--bg-deep);
+    border: none;
+    border-radius: 6px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(126, 184, 218, 0.25);
+  }
+  .btn-secondary {
+    padding: 0.85rem 2.2rem;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .btn-secondary:hover {
+    border-color: var(--text-secondary);
+    background: rgba(255,255,255,0.03);
+  }
+
+  /* Bridge visualization */
+  .bridge-visual {
+    margin-top: 5rem;
+    width: 100%;
+    max-width: 800px;
+    animation: fadeInUp 1s ease 0.8s both;
+  }
+  .bridge-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0 2rem;
+  }
+  .bridge-node {
+    padding: 0.9rem 1.8rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-card);
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    position: relative;
+  }
+  .bridge-node.legacy { color: var(--accent-3); border-color: rgba(240, 160, 80, 0.15); background: rgba(240, 160, 80, 0.04); }
+  .bridge-node.modern { color: var(--accent-4); border-color: rgba(94, 233, 181, 0.15); background: rgba(94, 233, 181, 0.04); }
+  .bridge-connector {
+    flex: 1;
+    height: 2px;
+    min-width: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bridge-connector::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, var(--bridge-1), var(--bridge-2), var(--bridge-3), var(--bridge-4), var(--bridge-5), var(--bridge-6), var(--bridge-7));
+    background-size: 200% 100%;
+    animation: rainbow-flow 4s linear infinite;
+  }
+  @keyframes rainbow-flow {
+    from { background-position: 0% 0%; }
+    to { background-position: 200% 0%; }
+  }
+  .bridge-center-label {
+    padding: 0.65rem 1.6rem;
+    background: var(--bg-deep);
+    border: 1px solid rgba(126, 184, 218, 0.25);
+    border-radius: 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--accent-1);
+    text-transform: uppercase;
+    z-index: 2;
+    box-shadow: 0 0 40px var(--glow);
+  }
+
+  /* ==================== SECTIONS ==================== */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 7rem 2rem;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-1);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+  }
+  .section-desc {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin-bottom: 3.5rem;
+  }
+
+  /* ==================== PROBLEM / SOLUTION ==================== */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  .problem-card, .solution-card {
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    transition: all 0.4s ease;
+  }
+  .problem-card:hover, .solution-card:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.1);
+  }
+  .card-icon {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .card-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+  .card-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  /* ==================== ARCHITECTURE ==================== */
+  .arch-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .arch-layer {
+    display: flex;
+    align-items: center;
+    padding: 1.4rem 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .arch-layer:first-child { border-radius: 12px 12px 0 0; }
+  .arch-layer:last-child { border-radius: 0 0 12px 12px; }
+  .arch-layer:hover { background: var(--bg-card-hover); }
+  .arch-layer-name {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    min-width: 160px;
+  }
+  .arch-layer-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    flex: 1;
+  }
+  .arch-layer-tech {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+  }
+  .arch-divider {
+    text-align: center;
+    padding: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent-1);
+    letter-spacing: 0.3em;
+    position: relative;
+  }
+  .arch-divider::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--bridge-5), var(--bridge-6), var(--bridge-7));
+  }
+
+  /* ==================== PRINCIPLES ==================== */
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .principle {
+    padding: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-card);
+    transition: all 0.4s ease;
+  }
+  .principle:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-3px);
+  }
+  .principle-number {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+  .principle-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .principle-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  /* ==================== CTA SECTION ==================== */
+  .cta-section {
+    text-align: center;
+    padding: 8rem 2rem;
+  }
+  .cta-section .section-title {
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+  }
+  .cta-section .section-desc {
+    margin: 0 auto 2.5rem;
+  }
+
+  /* ==================== FOOTER ==================== */
+  footer {
+    position: relative;
+    z-index: 1;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-bottom: 0.8rem;
+  }
+  .footer-text {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+  .footer-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    margin-top: 0.5rem;
+    opacity: 0.6;
+  }
+
+  /* ==================== ANIMATIONS ==================== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 768px) {
+    .problem-grid { grid-template-columns: 1fr; }
+    .principles-grid { grid-template-columns: 1fr; }
+    .bridge-line { flex-direction: column; gap: 0; }
+    .bridge-connector { width: 2px; height: 30px; min-width: unset; }
+    .bridge-connector::before {
+      background: linear-gradient(180deg, var(--bridge-1), var(--bridge-3), var(--bridge-5), var(--bridge-7));
+      background-size: 100% 200%;
+      animation: rainbow-flow-v 4s linear infinite;
+    }
+    @keyframes rainbow-flow-v {
+      from { background-position: 0% 0%; }
+      to { background-position: 0% 200%; }
+    }
+    .nav-links { display: none; }
+    .arch-layer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    .arch-layer-name { min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Aurora background -->
+<div class="aurora">
+  <div class="aurora-beam"></div>
+  <div class="aurora-beam"></div>
+  <div class="aurora-beam"></div>
+</div>
+
+<!-- Navigation -->
+<nav id="nav">
+  <a href="#" class="nav-logo">BITFROST AI</a>
+  <div class="nav-links">
+    <a href="#problem">The Problem</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#principles">Principles</a>
+    <a href="#contact" class="nav-cta">Get in Touch</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Now in Development
+  </div>
+  <h1>
+    <span class="gradient-text">The Bridge</span><br>
+    Your ERP Has Been<br>
+    Waiting For
+  </h1>
+  <p class="hero-sub">
+    Bitfrost connects legacy Infor A+ systems to modern AI services 
+    through a secure, clean-room REST/JSON gateway. No modifications 
+    to your vendor source code. Ever.
+  </p>
+  <div class="hero-ctas">
+    <a href="#contact" class="btn-primary">Request Early Access</a>
+    <a href="#architecture" class="btn-secondary">See the Architecture</a>
+  </div>
+
+  <div class="bridge-visual">
+    <div class="bridge-line">
+      <div class="bridge-node legacy">Infor A+ ERP</div>
+      <div class="bridge-connector"></div>
+      <div class="bridge-center-label">Bitfrost</div>
+      <div class="bridge-connector"></div>
+      <div class="bridge-node modern">AI Services</div>
+    </div>
+  </div>
+</section>
+
+<!-- Problem Section -->
+<section id="problem">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">// The Problem</span>
+      <h2 class="section-title">Your ERP holds decades of data.<br>It speaks to nothing modern.</h2>
+      <p class="section-desc">
+        Mid-market distributors are trapped. Their A+ systems run the business, 
+        but can't connect to the AI tools that could transform it.
+      </p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card reveal">
+        <span class="card-icon">&#9651;</span>
+        <h3 class="card-title">The Integration Wall</h3>
+        <p class="card-text">
+          A+ speaks RPG program calls, data queues, and flat files. 
+          Modern AI services speak REST, JSON, and webhooks. There's no 
+          native bridge between these worlds, leaving your most valuable 
+          data locked in a system built for a different era.
+        </p>
+      </div>
+      <div class="problem-card reveal">
+        <span class="card-icon">&#9670;</span>
+        <h3 class="card-title">The Modification Trap</h3>
+        <p class="card-text">
+          Every custom modification to vendor source code creates upgrade 
+          risk, support complications, and technical debt. The traditional 
+          approach to ERP integration is a ticking time bomb that gets 
+          more expensive with every release cycle.
+        </p>
+      </div>
+      <div class="solution-card reveal">
+        <span class="card-icon">&#9733;</span>
+        <h3 class="card-title">The Rip-and-Replace Myth</h3>
+        <p class="card-text">
+          The conventional advice is to migrate to a "modern" ERP. That's 
+          a multi-year, multi-million dollar project with a high failure rate. 
+          Your A+ system works. You don't need to replace it. You need to 
+          extend it.
+        </p>
+      </div>
+      <div class="solution-card reveal">
+        <span class="card-icon">&#9679;</span>
+        <h3 class="card-title">The Bitfrost Answer</h3>
+        <p class="card-text">
+          A clean-room gateway that sits alongside your A+ installation. 
+          Purpose-built RPG service programs read and write A+ data 
+          through documented interfaces. A modern API layer translates 
+          that data into REST/JSON for any AI service, application, or workflow.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture Section -->
+<section id="architecture">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">// Architecture</span>
+      <h2 class="section-title">Three layers. Zero vendor modifications.</h2>
+      <p class="section-desc">
+        Bitfrost is designed to never touch your A+ source code. Every component 
+        lives in its own library with its own naming conventions.
+      </p>
+    </div>
+    <div class="arch-stack reveal">
+      <div class="arch-layer">
+        <span class="arch-layer-name" style="color: var(--accent-4);">Asgard</span>
+        <span class="arch-layer-desc">AI orchestration layer. Document extraction, intelligent workflows, predictive analytics. Runs in the cloud.</span>
+        <span class="arch-layer-tech">Cloud Functions</span>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-name" style="color: var(--accent-1);">Bitfrost API</span>
+        <span class="arch-layer-desc">REST/JSON gateway. Translates modern API calls into RPG service program calls and returns structured data.</span>
+        <span class="arch-layer-tech">Python / FastAPI</span>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-name" style="color: var(--accent-3);">Bitfrost Core</span>
+        <span class="arch-layer-desc">Clean-room RPG service programs in ZBIFLIB. Read and write A+ data through standard file I/O. No source mods.</span>
+        <span class="arch-layer-tech">RPGLE / iSeries</span>
+      </div>
+      <div class="arch-layer">
+        <span class="arch-layer-name" style="color: var(--text-dim);">Infor A+</span>
+        <span class="arch-layer-desc">Your existing ERP. Untouched. Bitfrost accesses data through the same interfaces A+ itself uses.</span>
+        <span class="arch-layer-tech">Unchanged</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Principles Section -->
+<section id="principles">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">// Principles</span>
+      <h2 class="section-title">Built by people who run A+ in production.</h2>
+      <p class="section-desc">
+        Bitfrost isn't built by consultants who read the documentation. It's built 
+        by operators who've lived inside A+ for decades.
+      </p>
+    </div>
+    <div class="principles-grid">
+      <div class="principle reveal">
+        <span class="principle-number">01</span>
+        <h3 class="principle-title">Zero Vendor Modifications</h3>
+        <p class="principle-text">
+          Every Bitfrost component lives in its own library (ZBIFLIB) with its own 
+          naming conventions (BIF###). Your A+ source code is never touched, 
+          so upgrades and PTFs apply cleanly.
+        </p>
+      </div>
+      <div class="principle reveal">
+        <span class="principle-number">02</span>
+        <h3 class="principle-title">Clean-Room Architecture</h3>
+        <p class="principle-text">
+          Service programs are written from scratch using only documented A+ file 
+          layouts and standard RPG file I/O. No copied vendor code. 
+          No decompiled logic. Completely independent IP.
+        </p>
+      </div>
+      <div class="principle reveal">
+        <span class="principle-number">03</span>
+        <h3 class="principle-title">Your Data Stays Yours</h3>
+        <p class="principle-text">
+          Bitfrost runs on your iSeries. Your data never leaves your network 
+          unless you explicitly configure an Asgard cloud service. 
+          You control the perimeter.
+        </p>
+      </div>
+      <div class="principle reveal">
+        <span class="principle-number">04</span>
+        <h3 class="principle-title">Incremental Adoption</h3>
+        <p class="principle-text">
+          Start with one API endpoint. Add more as you prove value. 
+          There's no big-bang deployment, no all-or-nothing migration. 
+          Each service program is independently useful.
+        </p>
+      </div>
+      <div class="principle reveal">
+        <span class="principle-number">05</span>
+        <h3 class="principle-title">Distribution-First</h3>
+        <p class="principle-text">
+          Built for wholesale distribution workflows: order processing, 
+          inventory availability, vendor claims, warehouse operations. 
+          Not a generic middleware. Purpose-built for your industry.
+        </p>
+      </div>
+      <div class="principle reveal">
+        <span class="principle-number">06</span>
+        <h3 class="principle-title">AI-Ready by Design</h3>
+        <p class="principle-text">
+          Every Bitfrost endpoint returns clean, structured JSON that AI 
+          services can consume directly. Document extraction, natural language 
+          queries, predictive analytics &mdash; all built on your real data.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section id="contact" class="cta-section">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label">// Early Access</span>
+      <h2 class="section-title">Ready to bridge the gap?</h2>
+      <p class="section-desc">
+        Bitfrost is currently in active development with select partners. 
+        If you're running Infor A+ and want to explore what AI integration 
+        could do for your operation, we'd like to hear from you.
+      </p>
+      <a href="mailto:info@bitfrostai.com" class="btn-primary">info@bitfrostai.com</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">BITFROST AI</div>
+  <p class="footer-text">&copy; 2025 Bitfrost AI. All rights reserved.</p>
+  <p class="footer-tagline">Part of Operation Valhalla</p>
+</footer>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 100);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
